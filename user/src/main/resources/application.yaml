@@ -1,0 +1,86 @@
+server:
+  address: 8087
+  servlet:
+    context-path: '/ead/user' #path definido no gateway
+
+
+spring:
+  application:
+    name: ead-authuser-service
+  datasource:
+    url:  jdbc:postgresql://localhost:5432/ead-authuser
+    username: postgres
+    password: banco123
+  jpa:
+    hibernate:
+      ddl-auto: update
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+      jdbc:
+        lob.non-contextual-creation: true
+    properties:
+      hibernate:
+        show_sql: true
+
+
+logging:
+  level:
+    com.ead: TRACE
+    root: INFO
+    org.springframework.web: DEBUG
+    org.hibernate: INFO
+
+
+#config para montagem da url para comunucacão sincrona
+ead:
+  api:
+    url:
+      course: 'http://ead-course-service/ead-course'
+      
+      
+  ## config basicAuthenticatio por causa da dependencia do springSecurty no caso se o projeto tiver um confg-server Global não necessidade de colocar em cada ms 
+
+  serviceRegistry:
+    username: serviceregistry
+    password: 'ead123sr'   
+      
+      
+
+#eureka  
+eureka:
+  client:
+    service-url: 
+#       defaultZone: 'http://ead-course-service'
+#      defaultZone: 'http://localhost:8761/eureka'
+        defaultZone: 'http://${ead.serviceRegistry.username}:${ead.ead.serviceRegistry.username}@localhost:8761/eureka' ## nova url por causa do spring Security
+  instance:
+    hostname: localhost   
+    
+      
+
+
+
+
+
+
+
+
+
+
+## conexao com banco
+## nome aplicacao
+##spring.application.name=user
+##server.port=8001
+
+#Database configuration
+##spring.datasource.url=jdbc:h2:mem:testdb
+##spring.datasource.username=sa
+#spring.datasource.password=
+
+
+#spring.h2.console.enabled=true
+#spring.h2.console.path=/h2-console
+
+#spring.jpa.show-sql=true
+#pring.jpa.hibernate.ddl-auto=update
+#spring.jpa.properties.hibernate.format.sql_sql=true
+

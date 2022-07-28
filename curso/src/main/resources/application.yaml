@@ -1,0 +1,97 @@
+## AS CONFIGURACÇÃOE ESTÃO COMENTADAS PQ O ESTÃO SENDO GERENCIADOS PELO GIT OS ARQUIVOS DO MS ESTAÕ DENTRO DO CONFIG-SERVER
+## VC TB PODE COLOCAR A TAG OPTIONAL PARA CASO O SERVER ESTAJA FORA E BUSA AS CONFIGURACOUES LOCAIS 
+
+#config eureka
+server:
+  address: 8087
+  servlet:
+    context-path: '/ead/course' #path definido no gateway
+    
+ 
+#config server
+##spring:
+  application:
+    name: ead-course-service
+  config:
+    import: 'opitional:configserver'  ## tag optional para caso flahe o servico ele peaga as config local
+  cloud:
+    config:
+      discovery:
+        service-id: ead-config-server 
+ 
+    
+    
+spring:
+  application:
+    name: ead-course-service
+  datasource:
+    url:  jdbc:postgresql://localhost:5432/ead-course
+    username: postgres
+    password: banco123
+  jpa:
+    hibernate:
+      ddl-auto: update
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+      jdbc:
+        lob.non-contextual-creation: true
+    properties:
+      hibernate:
+        show_sql: true
+ ##rabbitMql      
+  rabbitmq:
+     addresses: amqps://oqaevxaf:6KU7WK_x0k2Et0CwgwlOOdf95NAR4uPG@woodpecker.rmq.cloudamqp.com/oqaevxaf ##url ampqCloud(ampqCloud instancai criada host . url ...)
+    
+logging:
+  level:
+    com.ead: TRACE
+    root: INFO
+    org.springframework.web: DEBUG
+    org.hibernate: INFO    
+    
+    
+    
+#config para montagem da url para comunucacão sincrona
+ead:
+  api:
+    url:
+      user: 'http://ead-authuser-service/ead-authuser'
+  broker:
+    exchange:
+      userEventExchange: ead.userevent
+      notificacaoCommandExchange: ead.notificacaocommand ## passando o binding para msg do ms ntotificacao iqual esta no .ymal do notificacao
+    queue:
+      userEventQueue:
+        name: ead.userevent.ms.course # fila onde o ms course vai estar escutando
+    key: # roting key para o consumer notificacao
+      notificaoCommandKey: ms.notificacao 
+      
+
+
+## config basicAuthenticatio por causa da dependencia do springSecurty no caso se o projeto tiver um confg-server Global não necessidade de colocar em cada ms 
+
+  serviceRegistry:
+    username: serviceregistry
+    password: 'ead123sr'
+
+
+
+
+eureka:
+  client:
+    service-url: 
+ #   defaultZone: 'http://ead-user-service'  #vc passa o id do servico
+##   defaultZone: 'http://localhost:8761/eureka' ## usaddo para comuncaao sincron quando vc monta a url
+     defaultZone: 'http://${ead.serviceRegistry.username}:${ead.ead.serviceRegistry.username}@localhost:8761/eureka' ## nova url por causa do spring Security
+  instance:
+    hostname: localhost 
+
+
+
+
+
+
+
+## config de banco de dados esta no caiptulo Mapear Entidades , criar repository e services
+
+
+ 

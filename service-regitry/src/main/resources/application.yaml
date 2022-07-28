@@ -1,0 +1,22 @@
+server:
+  port: 8761 # porta do servidor
+  
+spring:
+  application:
+    name: ead-service-registry
+    
+## config basicAuthenticatio por causa da dependencia do springSecurty
+
+ead:
+  serviceRegistry:
+    username: serviceregistry
+    password: 'ead123sr'
+    
+    
+eureka:
+  client:
+    register-with-eureka: false # para eo proprio registro não se registar nele
+    fetch-registry: false
+    ## para não mostar erros no log
+    service-url:
+      defaultZone: 'http://${ead.serviceRegistry.username}:${ead.ead.serviceRegistry.username}@localhost:8061/eureka'

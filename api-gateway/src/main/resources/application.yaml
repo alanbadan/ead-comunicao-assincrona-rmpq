@@ -1,0 +1,43 @@
+server:
+  port: 8080
+  
+spring:
+  application:
+    name: ead.api-gateway
+    #definindo as rotas
+  cloud:
+    gateway:
+      routes:
+      - id: user-service
+        #uri: http://localhost:8087 sem o uso dinamico do eureka(esse url esta fixa)
+        uri: lb://EAD-USER-SERVICE # end do eureka
+        predicates:
+        - Path=/ead-user/**
+      - id: course-service
+        #uri: http://localhost:8082 sem o uso dinamico do eureka(esse url esta fixa)
+        uri: lb://EAD-COURSE-SERVICE # end do eureka
+        predicates:
+        - Path=/ead-course/**
+        ##rota par ms notificacao
+      - id: notificacao-service
+        #uri: http://localhost:8082 sem o uso dinamico do eureka(esse url esta fixa)
+        uri: lb://EAD-NOTIFICACAO-SERVICE # end do eureka
+        predicates:
+        - Path=/ead-notificacao/**  
+
+## config basicAuthenticatio por causa da dependencia do springSecurty
+ead:
+  serviceRegistry:
+    username: serviceregistry
+    password: 'ead123sr'
+
+       
+#config do eureka       
+eureka:
+  client:
+    service-url: 
+      ## defaultZone: 'http://localhost:8761/eureka' url sem o srping security
+   ## nova url com spring authenticatio    
+       defaultZone: 'http://${ead.serviceRegistry.username}:${ead.ead.serviceRegistry.username}@localhost:8761/eureka'
+  instance:
+    hostname: localhost         

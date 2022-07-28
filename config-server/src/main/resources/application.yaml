@@ -1,0 +1,32 @@
+server:
+  port: 8888
+# congiguracao para config global no github para gerenciamneto das config
+#spring:
+#  application:
+#    name: ead-config-server
+#  cloud:
+#    config:
+#      server:
+#        git:
+#          uri: https://github.com/MichelliBrito/ead-config-server-repo
+#          default-label: main
+#          username: michelli
+#          password: ***********
+
+# config server para um gonfig global onde essas v=credenciais estra no .ymal de cada ms e não como esta atualmente pq não esta implemtadao um config global nesse projeto
+ead:
+  configServer:
+    username: configserver
+    password: 'ead123cs'
+  serviceRegistry:
+    username: serviceregistry
+    password: 'ead123sr'
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: 'http://${ead.serviceRegistry.username}:${ead.serviceRegistry.password}@localhost:8761/eureka'
+  instance:
+    hostname: localhost
+
+
