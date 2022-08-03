@@ -2,6 +2,7 @@ package com.ead.user.model;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -13,9 +14,12 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.ManyToAny;
 import org.springframework.beans.BeanUtils;
 
 import com.ead.user.dto.UserEventDto;
@@ -64,6 +68,15 @@ public class UserModel  implements Serializable {
 	private UserStatus userStatus;
 	@Enumerated(EnumType.STRING)
 	private UserType userType;
+	
+	
+	//relacionamento de usuarios com Roles 
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY) //controlando o acessao a coleção
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(name = "tb_user_roles",  //nome tab intermediaria gerada com duas chaves 
+	           joinColumns = @JoinColumn(name = "user_id"),
+	           inverseJoinColumns = @JoinColumn(name = "role_id")) //relacionamento do outro lado
+	private Set<RoleModel> roles = new HashSet<>();
 	
 
 	
@@ -139,7 +152,15 @@ public class UserModel  implements Serializable {
 	public void setUserType(UserType userType) {
 		this.userType = userType;
 	}
-/*	
+	
+	
+    public Set<RoleModel> getRoles() {
+		return roles;
+	}
+	public void setRoles(Set<RoleModel> roles) {
+		this.roles = roles;
+	}
+	/*	
 	 //metodo para conversão do dto em UserModel( outra abordagem seria o BeansUtlis)
 	public UserCourseModel convertToUserCourseModel(UUID courseId)  { //recebendo o courseID do Dto
 			return new UserCourseModel(null, courseId, this);

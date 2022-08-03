@@ -8,6 +8,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,9 +18,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ead.user.dto.UserDto;
+import com.ead.user.enums.RoleType;
 import com.ead.user.enums.UserStatus;
 import com.ead.user.enums.UserType;
+import com.ead.user.model.RoleModel;
 import com.ead.user.model.UserModel;
+import com.ead.user.servicies.RoleService;
 import com.ead.user.servicies.UserService;
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -41,7 +45,13 @@ public class AuthenticationController {
 	
 	@Autowired
 	UserService userService; //ha a necessidade de criare um dto exclusio para valodar os dados de entrada e depois converter em usar model.
-
+    
+	
+	@Autowired //injeção para autorização
+	RoleService roleService;
+	
+	@Autowired //injeção para criptografar a senha
+	PasswordEncoder passwordEncoder;
 	
 	@PostMapping("/signup")
 	public ResponseEntity<Object> registerUser(@RequestBody @Validated(UserDto.UserView.RegistrationPost.class)
@@ -59,6 +69,14 @@ public class AuthenticationController {
 //			log.warn("Email {} is Already Taken ", userDto.getEmail());
 			return ResponseEntity.status(HttpStatus.CONFLICT).body("Email ja existente favor verificar campo preenchidos");
 		}
+		//verificando se a role existe
+		RoleModel roleModel = roleService.findByRoleName(RoleType.ROLE_STUDENT)
+				.orElseThrow(() -> new RuntimeException(" Erro essa role não exixte"));
+		
+		//setando a senha vinda com o cliente e criptografando o esta que esta vindo no parametro 
+		userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
+		
+		
 		
 	var userModel = new UserModel();
 	BeanUtils.copyProperties(userDto, userModel) ;// usando o benautils para conversao 
@@ -67,6 +85,8 @@ public class AuthenticationController {
 	userModel.setUserType(UserType.STUDENT);
 	userModel.setCreationDate(LocalDateTime.now(ZoneId.of("UTC")));
 	userModel.setLastUpdateDate(LocalDateTime.now(ZoneId.of("UTC")));
+	//adicionado a role antes de salvar
+	userModel.getRoles().add(roleModel);
 	userService.save(userModel);
 	return ResponseEntity.status(HttpStatus.CREATED).body(userModel);
 	
