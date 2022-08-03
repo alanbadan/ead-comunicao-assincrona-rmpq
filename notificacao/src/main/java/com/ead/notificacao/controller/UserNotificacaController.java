@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,6 +32,7 @@ public class UserNotificacaController {
 	NotificacaoService notificacaoService;
 	
 	
+	@PreAuthorize("hasAnyRole('STUDENT')")
 	@GetMapping("/user/{userId}/notificacao") //retornando as msg que ainda não foram lidas ( satus Created)
 	public ResponseEntity<Page<NotificacaoModel>> getAllNotificacao(@PathVariable(value = "userId") UUID userId,
 			                                                         @PageableDefault(page = 0, size = 10, sort = "notificacaoId", direction = Sort.Direction.ASC) Pageable pageable){
@@ -38,6 +40,7 @@ public class UserNotificacaController {
 	}
 	
 	//endpoint para atualizacao de msg de Created pta Lido
+	@PreAuthorize("hasAnyRole('STUDENT')")
 	@PutMapping("/user/{userId}/notificacao/{notificacaoId}")
 	public ResponseEntity<Object> upDateNotificacao(@PathVariable(value = "userId") UUID userId,
 			                                        @PathVariable(value = "notificacaoId") UUID notificacaoId,
