@@ -1,4 +1,4 @@
-package com.ead.user.config;
+package com.ead.user.securty;
 
 import java.io.IOException;
 

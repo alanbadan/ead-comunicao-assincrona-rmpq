@@ -4,10 +4,16 @@ package com.ead.user.controller;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -17,12 +23,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ead.user.dto.JwtDto;
+import com.ead.user.dto.LoginDto;
 import com.ead.user.dto.UserDto;
 import com.ead.user.enums.RoleType;
 import com.ead.user.enums.UserStatus;
 import com.ead.user.enums.UserType;
 import com.ead.user.model.RoleModel;
 import com.ead.user.model.UserModel;
+import com.ead.user.securty.JwtProvider;
 import com.ead.user.servicies.RoleService;
 import com.ead.user.servicies.UserService;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -52,6 +61,13 @@ public class AuthenticationController {
 	
 	@Autowired //injeção para criptografar a senha
 	PasswordEncoder passwordEncoder;
+	
+	@Autowired
+	JwtProvider jwtProvider;
+	
+	@Autowired
+	AuthenticationManager authenticationManager;
+	
 	
 	@PostMapping("/signup")
 	public ResponseEntity<Object> registerUser(@RequestBody @Validated(UserDto.UserView.RegistrationPost.class)
@@ -90,6 +106,17 @@ public class AuthenticationController {
 	userService.save(userModel);
 	return ResponseEntity.status(HttpStatus.CREATED).body(userModel);
 	
+	}
+	
+	//endpoint para authenticacao
+	@PostMapping("/login")
+	public ResponseEntity<JwtDto> authenticationUser(@Valid @RequestBody LoginDto loginDto) {
+		Authentication authentication = authenticationManager.authenticate(
+				new UsernamePasswordAuthenticationToken(loginDto.getUserName(), loginDto.getPassword()));
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+		String jwt = jwtProvider.generateJwt(authentication);
+		
+		return ResponseEntity.ok(new JwtDto(jwt));
 	}
 	
 	

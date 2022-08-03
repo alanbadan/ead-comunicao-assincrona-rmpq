@@ -19,4 +19,10 @@ public interface UserRepository  extends JpaRepository<UserModel, UUID>,JpaSpeci
 	//pq alem de carregar o nome deve-se carregar o coleção de roles por isso se define no attributePaths a colecao de recarregamento
 	@EntityGraph(attributePaths = "roles", type = EntityGraph.EntityGraphType.FETCH)
 	Optional<UserModel> findByUserName(String username);
+	
+	 //anotacao por causa do creegamento Lazy definido no UserModel
+		//pq alem de carregar o nome deve-se carregar o coleção de roles por isso se define no attributePaths a colecao de recarregamento
+    @EntityGraph(attributePaths = "roles", type = EntityGraph.EntityGraphType.FETCH)
+	Optional<UserModel> findById(UUID userId);
+	
 }

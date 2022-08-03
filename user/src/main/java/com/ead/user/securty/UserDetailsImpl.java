@@ -1,4 +1,4 @@
-package com.ead.user.config;
+package com.ead.user.securty;
 
 import java.util.Collection;
 import java.util.List;
@@ -97,6 +97,56 @@ public class UserDetailsImpl  implements UserDetails{
 	@Override
 	public boolean isEnabled() {
 		return true;
+	}
+
+
+	public UUID getUserId() {
+		return userId;
+	}
+
+
+	public void setUserId(UUID userId) {
+		this.userId = userId;
+	}
+
+
+	public String getFullName() {
+		return fullName;
+	}
+
+
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
+
+
+	public String getUserName() {
+		return userName;
+	}
+
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+
+	public String getEmal() {
+		return emal;
+	}
+
+
+	public void setEmal(String emal) {
+		this.emal = emal;
+	}
+
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+
+	public void setAuthorities(Collection<? extends GrantedAuthority> authorities) {
+		this.authorities = authorities;
 	}
 
 }

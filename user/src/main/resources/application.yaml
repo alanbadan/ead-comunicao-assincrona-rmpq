@@ -42,8 +42,12 @@ ead:
   serviceRegistry:
     username: serviceregistry
     password: 'ead123sr'   
-      
-      
+    
+##config do jwt e token ( colocado em cada ms que precise de autenticacao pq a config não é golbal)
+
+  auth:         ## site para gerar a key https://www.allkeysgenerator.com/Random/Security-Encryption-Key-Generator.aspx
+     jwtSecret: Yq3t6w9y$B&E)H@McQfTjWnZr4u7x!A%C*-JaNdRgUkXp2s5v8y/B?E(G+KbPeSh
+     jwtExpirationMs: 1440000   //definindo a validade do token
 
 #eureka  
 eureka:

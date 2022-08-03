@@ -13,6 +13,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ead.user.dto.UserDto;
 import com.ead.user.model.UserModel;
+import com.ead.user.securty.UserDetailsImpl;
 import com.ead.user.servicies.UserService;
 import com.ead.user.specification.SpecificationTemplate;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -38,10 +42,16 @@ public class UserController {
 	@Autowired
 	UserService userService;
 	
+	
+	//autorizacao a nivel de metodo
+	@PreAuthorize("hasAnyRole('ADMIN', 'STUDENT')") //podendo passar uma lista de role
    ///Metodo de retorno normal sem comunicacao sincrona com course///
 	@GetMapping                                        //Paginacao default
 	public ResponseEntity<Page<UserModel>> getAllUser(SpecificationTemplate.UserSpec spec,
-			                                          @PageableDefault(page = 0, size = 10, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable){
+			                                          @PageableDefault(page = 0, size = 10, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable,
+			                                          Authentication authentication ){ //maneira de extrair o dados do authrtication via metodo de chamada
+		UserDetails userDetails = (UserDetailsImpl) authentication.getPrincipal();//fazendo casting para transformar em usaDetais
+//		log.info("Authentication {}", userDetails.getUsername());
 			                                         
 		Page<UserModel> userModelPage = userService.findAll(spec,pageable);
 		return ResponseEntity.status(HttpStatus.OK).body(userModelPage);
