@@ -10,6 +10,8 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -42,19 +44,23 @@ public class CourseClient { //classe para comunicao sincrona  implementacao da r
 
 	//@Retry(name = "retryInstance", fallbackMethod = "retryfallback")
      @CircuitBreaker(name = "circuitbreakerInstance")
-	public Page<CourseDto> getAllCourseByUser(UUID userId, Pageable pageable){
+	public Page<CourseDto> getAllCourseByUser(UUID userId, Pageable pageable, String token){ //o token para comunicao sincrona de autorizacao
 		
 		 //usando o metodo da interface
 		List<CourseDto> serchResult =null;
 		ResponseEntity<ResponsePageDto<CourseDto>> result = null;
 		String url = REQUEST_URL_COURSE + utilsService.createUrlGetAllCouseByUser(userId, pageable);
+		//montando o header para passar quando vem o token na requisicao
+		HttpHeaders headers = new HttpHeaders(); //inicainado os headers
+		headers.set("Authorization", token); // setando o paremetro do metodo
+		HttpEntity<String> requestEntity = new HttpEntity<String>("parameters", headers); // montando o body dos headers
 
 		try {
 			//utilisando um classe ABSTRATA DO  spring CORE  para reposta da paginacao
 			                            //definindo a parametrisaçao de cursoDto
 			  ParameterizedTypeReference<ResponsePageDto<CourseDto>> responseType = new ParameterizedTypeReference<ResponsePageDto<CourseDto>>() {};
 			//defindo o response entity http
-		     result = restTemplate.exchange(url, HttpMethod.GET, null, responseType);
+		     result = restTemplate.exchange(url, HttpMethod.GET, requestEntity, responseType); //null pa não ha header/ com a montagem do header passa o header com o teken da requisicao do estudante 
 			//obtendo o content nesse caso o content
 			serchResult = result.getBody().getContent();
 			

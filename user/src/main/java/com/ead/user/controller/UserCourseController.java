@@ -11,8 +11,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ead.user.client.CourseClient;
@@ -44,18 +46,23 @@ public class UserCourseController {
 			return ResponseEntity.status(HttpStatus.OK).body(courseClient.getAllCourseByUser(userId, pageable)); //metodo CLIENT para chamr um curso de um determinado usuario
 		}
 	*/	
+	
+	//autorizacao e autenticacao para comuicaçao asssincrona ( o usuaria precisa de um autentix=cao para buscar os cursos) inclindo o Token na comunicacao
+	@PreAuthorize("hasAnyRole('STUDENT')")
+	
 	//metedo get com verificaao sincrona se ha reacao entere user e course 
 	//lembrando do Object para retorno de qualquer tipo dependendo do cenario
 	@GetMapping("/user/{userId}/course")
 	public ResponseEntity<Object> getAllCourseByUser(@PageableDefault(page = 0, size = 10, sort = "courseId", direction = Sort.Direction.ASC) Pageable pageable,
-			                                                  @PathParam(value = "userId") UUID userId){
+			                                                  @PathParam(value = "userId") UUID userId,
+			                                                  @RequestHeader("Authorization") String token){  //o token esta dentro do Header da requizicao  //passando o paremetro que se quer asseçar
 		//verificando se exixte um usuario para o curso (comunicacao sincrona com curse)
 	    Optional<UserModel> userModelOptional= userService.findById(userId)	;	
 	    if(!userModelOptional.isPresent()) {
 	    	return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User Not Found");
 	    }
 	    //se existir as realcao o ms retorna toda a relacao
-	    return ResponseEntity.status(HttpStatus.OK).body(courseClient.getAllCourseByUser(userId, pageable)); //metodo CLIENT para chamr um curso de um determinado usuario
+	    return ResponseEntity.status(HttpStatus.OK).body(courseClient.getAllCourseByUser(userId, pageable, token)); //metodo CLIENT para chamr um curso de um determinado usuario
 	}
 	
 
