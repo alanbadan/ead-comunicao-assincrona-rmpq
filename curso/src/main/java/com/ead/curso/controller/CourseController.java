@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -44,6 +45,8 @@ public class CourseController {
 	@Autowired
 	CourseValidator courseValidator; //injação para usar o metodo de validação customisado
 	
+	
+	@PreAuthorize("hasAnyRole('INSTRUCTOR')")
 	@PostMapping                                  //(@RequestBody @Valid CourseDto courseDto) VLAIDACAO COM AS CONSTRAINTS E ANOTACAO 
 	public ResponseEntity<Object> saveCourse(@RequestBody CourseDto courseDto, Errors errors){ //VALIDACAO MAIS AVANCADA (SEM ANOTACAO) COM UM A CLASSE E ANOTACAO VALIDATOR
 		//chamando o validator para verficação
@@ -62,6 +65,7 @@ public class CourseController {
 		return ResponseEntity.status(HttpStatus.CREATED).body(courseService.save(courseModel));
 	}
 	
+	@PreAuthorize("hasAnyRole('INSTRUCTOR')")
 	@DeleteMapping("/{idcourseId}")
 	public ResponseEntity<Object> deleteCourse(@PathVariable(value = "courseId") UUID courseId){
 		Optional<CourseModel> courseModelOptional = courseService.findById(courseId); //verifivcando se ha esse id no banco
@@ -72,6 +76,7 @@ public class CourseController {
 		return ResponseEntity.status(HttpStatus.OK).body("Course deleted suceessfuly");
 	}
 	
+	@PreAuthorize("hasAnyRole('INSTRUCTOR')")
 	@PutMapping("/{courseId}")
 	public ResponseEntity<Object> updateCourse(@PathVariable(value = "courseId") UUID courseId, @RequestBody @Valid CourseDto courseDto) {
 		Optional<CourseModel> courseModelOptional = courseService.findById(courseId);
@@ -92,6 +97,8 @@ public class CourseController {
 	}
 */	
 	//API PARA CMOMUNICACAO SINCRONA COM USER 
+	
+	@PreAuthorize("hasAnyRole('STUDENT')")
 	@GetMapping            //ResponseEntity<List<CourseModel>> getAllCourses()
 	public ResponseEntity<Page<CourseModel>> getAllCourses(SpecificationTemplate.CourseSpec spec ,//passando um dado especifico com o filtro determinado no specification
 			                                               @PageableDefault(page = 0, size = 10, sort = "userId", direction = Sort.Direction.ASC) Pageable pageable,    //passando um retorno de uma lista sem paginacao
@@ -107,6 +114,7 @@ public class CourseController {
 			
 	}
 	
+	@PreAuthorize("hasAnyRole('STUDENT')")
 	@GetMapping("/{courseId}") //passando o pathvariable para pesquisa por id do curso
 	public ResponseEntity<Object> getOneCourse(@PathVariable(value = "courseId") UUID courseId){ //object pq nao sabe o retorno
 		Optional<CourseModel> courseModelOptional = courseService.findById(courseId);

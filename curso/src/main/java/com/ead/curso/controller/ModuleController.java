@@ -17,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,6 +45,7 @@ public class ModuleController {
 	CourseService courseService;
 	
 	
+	@PreAuthorize("hasAnyRole('INSTRUCTOR')")
 	@PostMapping("/course/{courseId}/modules")
 	public ResponseEntity<Object>saveModule(@PathVariable(value = "courseId") UUID courseId, @RequestBody @Valid ModuleDto moduleDto){
 		Optional<CourseModel> courseModelOptional = courseService.findById(courseId); //pegando o courseId e verifivcando se ele existe
@@ -58,6 +60,8 @@ public class ModuleController {
 		return ResponseEntity.status(HttpStatus.CREATED).body(moduleService.save(moduleModel));
 	}
 	
+	
+	@PreAuthorize("hasAnyRole('INSTRUCTOR')")
 	@DeleteMapping("/course/{courseId}/modules/{modulesId}") //passando o id do curso e id do modulo para deletar
 	public ResponseEntity<Object> deleteModule (@PathVariable(value = "courseId") UUID courseId, @PathVariable(value = "moduleId") UUID moduleId){
 		Optional<ModuleModel> moduleModelOptional = moduleService.findModuleIntoCourse(courseId, moduleId); //metodo para ver se existe o moduloId dentro do course
@@ -68,6 +72,7 @@ public class ModuleController {
 		return ResponseEntity.status(HttpStatus.OK).body("Module deleted successfuly");
 	}
 	
+	@PreAuthorize("hasAnyRole('INSTRUCTOR')")
 	@PutMapping("/course/{courseId}/module/{moduleId}")
 	public ResponseEntity<Object> updateModule(@PathVariable(value = "courseId") UUID courseId, @PathVariable(value = "moduleId") UUID moduleId,
 			                                    @RequestBody @Valid ModuleDto moduleDto){
@@ -89,6 +94,8 @@ public class ModuleController {
 	}
 */	
   }
+	
+	@PreAuthorize("hasAnyRole('STUDENT')")
 	@GetMapping("/course/{courseId/module") //tendo um pathvariable para consulta de um moduleId no curso
 	public ResponseEntity<Page<ModuleModel>> getAllModules(@PathVariable(value = "courseId") UUID courseId,
 		                                                   SpecificationTemplate.ModuleSpec spec ,//passando um dado especifico com o filtro determinado no specification
@@ -96,6 +103,7 @@ public class ModuleController {
 		return ResponseEntity.status(HttpStatus.OK).body(moduleService.findAllByCourse(SpecificationTemplate.moduleCourseId(courseId).and(spec), pageable));
   }
 	
+	@PreAuthorize("hasAnyRole('STUDENT')")
 	@GetMapping("/course/{courseId}/module/{moduleId}")
 	public ResponseEntity<Object> getOneModule(@PathVariable(value = "courseId") UUID courseId,@PathVariable(value = "moduleId") UUID moduleId){
 		Optional<ModuleModel>moduleModelOptional = moduleService.findModuleIntoCourse(courseId, moduleId);//pesquisando um moduo dentro de um curso
